@@ -1,0 +1,153 @@
+﻿@page
+@model CRM_APP.Pages.Leads.IndexModel
+@{
+    ViewData["Title"] = "Leads";
+}
+
+<h1>Leads Management</h1>
+
+<div class="mb-3">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createLeadModal">
+        + New Lead (Modal)
+    </button>
+    <a href="/Leads/Import" class="btn btn-info">Import CSV</a>
+    <a href="/Leads/Export" class="btn btn-secondary">Export CSV</a>
+</div>
+
+<table id="leadsTable" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Company</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var lead in Model.Leads)
+        {
+            <tr data-id="@lead.Id">
+                <td>@lead.Name</td>
+                <td>@lead.Email</td>
+                <td>@lead.Company</td>
+                <td>@lead.Status</td>
+                <td>@lead.Source</td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@lead.Id" class="btn btn-sm btn-warning">Edit</a>
+                    @if (lead.Status != "Converted" && lead.Status != "Lost")
+                    {
+                        <a asp-page="./Convert" asp-route-id="@lead.Id" class="btn btn-sm btn-primary">Convert</a>
+                    }
+                    <a asp-page="./Details" asp-route-id="@lead.Id" class="btn btn-sm btn-info">Activities</a>
+                    <a asp-page="./Delete" asp-route-id="@lead.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal for Creating Lead -->
+<div class="modal fade" id="createLeadModal" tabindex="-1" aria-labelledby="createLeadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="createLeadForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createLeadModalLabel">Create New Lead</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label for="Name" class="form-label">Name</label>
+                        <input type="text" id="Name" name="Name" class="form-control" required />
+                    </div>
+                    <div class="mb-2">
+                        <label for="Email" class="form-label">Email</label>
+                        <input type="email" id="Email" name="Email" class="form-control" required />
+                    </div>
+                    <div class="mb-2">
+                        <label for="Phone" class="form-label">Phone</label>
+                        <input type="text" id="Phone" name="Phone" class="form-control" />
+                    </div>
+                    <div class="mb-2">
+                        <label for="Company" class="form-label">Company</label>
+                        <input type="text" id="Company" name="Company" class="form-control" />
+                    </div>
+                    <div class="mb-2">
+                        <label for="Source" class="form-label">Source</label>
+                        <select id="Source" name="Source" class="form-select">
+                            <option>Website</option>
+                            <option>Referral</option>
+                            <option>Cold Call</option>
+                            <option>Social Media</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label for="Status" class="form-label">Status</label>
+                        <select id="Status" name="Status" class="form-select">
+                            <option>New</option>
+                            <option>Contacted</option>
+                            <option>Qualified</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize DataTable
+            var table = $('#leadsTable').DataTable();
+
+            // Handle form submission via AJAX
+            $('#createLeadForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/Leads/Index?handler=CreateLeadJson',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        Name: $('#Name').val(),
+                        Email: $('#Email').val(),
+                        Phone: $('#Phone').val(),
+                        Company: $('#Company').val(),
+                        Source: $('#Source').val(),
+                        Status: $('#Status').val()
+                    }),
+                    success: function (response) {
+                        if (response.success) {
+                            // Add new row to DataTable
+                            table.row.add([
+                                response.lead.name,
+                                response.lead.email,
+                                response.lead.company,
+                                response.lead.status,
+                                response.lead.source,
+                                '<a href="/Leads/Edit?id=' + response.lead.id + '" class="btn btn-sm btn-warning">Edit</a> ' +
+                                '<a href="/Leads/Convert?id=' + response.lead.id + '" class="btn btn-sm btn-primary">Convert</a> ' +
+                                '<a href="/Leads/Details?id=' + response.lead.id + '" class="btn btn-sm btn-info">Activities</a> ' +
+                                '<a href="/Leads/Delete?id=' + response.lead.id + '" class="btn btn-sm btn-danger">Delete</a>'
+                            ]).draw();
+                            // Reset form and close modal
+                            $('#createLeadForm')[0].reset();
+                            $('#createLeadModal').modal('hide');
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred while creating the lead.');
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,146 @@
+﻿@page
+@model CRM_APP.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+    .stat-card {
+        transition: transform 0.2s;
+        border-radius: 1rem;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+</style>
+
+<h1 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+
+<!-- Row 1: CRM KPIs -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h5 class="card-title">Total Customers</h5><h2 class="display-4">@Model.TotalCustomers</h2></div>
+                    <i class="bi bi-people-fill stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h5 class="card-title">Total Orders</h5><h2 class="display-4">@Model.TotalOrders</h2></div>
+                    <i class="bi bi-cart-fill stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h5 class="card-title">Revenue</h5><h2 class="display-4">$@Model.TotalRevenue.ToString("N0")</h2></div>
+                    <i class="bi bi-currency-dollar stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h5 class="card-title">Total Accounts</h5><h2 class="display-4">@Model.TotalAccounts</h2></div>
+                    <i class="bi bi-building stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 2: Lead KPIs -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card shadow-sm bg-secondary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h5 class="card-title">Total Leads</h5><h2 class="display-4">@Model.TotalLeads</h2></div>
+                    <i class="bi bi-person-plus-fill stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card shadow-sm bg-dark text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h5 class="card-title">Qualified Leads</h5><h2 class="display-4">@Model.QualifiedLeads</h2></div>
+                    <i class="bi bi-check-circle-fill stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card shadow-sm bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h5 class="card-title">Converted Leads</h5><h2 class="display-4">@Model.ConvertedLeads</h2></div>
+                    <i class="bi bi-trophy-fill stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 3: Charts -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">Orders per Customer (Top 5)</div>
+            <div class="card-body">
+                <canvas id="ordersChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">Lead Sources</div>
+            <div class="card-body">
+                <canvas id="sourceChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Orders per customer chart (bar)
+        const orderCtx = document.getElementById('ordersChart').getContext('2d');
+        const customerNames = @Html.Raw(Json.Serialize(Model.CustomerNames));
+        const orderCounts = @Html.Raw(Json.Serialize(Model.OrderCounts));
+        new Chart(orderCtx, {
+            type: 'bar',
+            data: { labels: customerNames, datasets: [{ label: '# Orders', data: orderCounts, backgroundColor: 'rgba(54,162,235,0.5)' }] },
+            options: { responsive: true, scales: { y: { beginAtZero: true, stepSize: 1 } } }
+        });
+
+        // Lead sources chart (pie)
+        const sourceCtx = document.getElementById('sourceChart').getContext('2d');
+        const sources = @Html.Raw(Json.Serialize(Model.LeadSources.Keys));
+        const sourceCounts = @Html.Raw(Json.Serialize(Model.LeadSources.Values));
+        new Chart(sourceCtx, {
+            type: 'pie',
+            data: { labels: sources, datasets: [{ data: sourceCounts, backgroundColor: ['#ff6384','#36a2eb','#ffce56','#4bc0c0','#9966ff'] }] }
+        });
+    </script>
+}

@@ -1,0 +1,7 @@
+## Ignore Visual Studio temp files, build output, and database 
+bin/ 
+obj/ 
+*.db 
+*.sqlite 
+.vs/ 
+*.user 

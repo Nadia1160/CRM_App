@@ -1,0 +1,36 @@
+﻿@page "{id:int}"
+@model CRM_APP.Pages.Leads.ConvertModel
+@{
+    ViewData["Title"] = "Convert Lead to Account";
+}
+
+<h2>Convert Lead to Account</h2>
+
+<div class="alert alert-warning">
+    <strong>⚠️ Confirmation</strong><br />
+    Are you sure you want to convert the following lead into an account?
+    This will also mark the lead as <strong>Converted</strong>.
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Lead Name</dt>
+    <dd class="col-sm-10">@Model.Lead.Name</dd>
+
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.Lead.Email</dd>
+
+    <dt class="col-sm-2">Company</dt>
+    <dd class="col-sm-10">@Model.Lead.Company</dd>
+
+    <dt class="col-sm-2">Phone</dt>
+    <dd class="col-sm-10">@Model.Lead.Phone</dd>
+
+    <dt class="col-sm-2">Current Status</dt>
+    <dd class="col-sm-10">@Model.Lead.Status</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="Lead.Id" />
+    <button type="submit" class="btn btn-success">✔ Confirm Conversion</button>
+    <a href="/Leads" class="btn btn-secondary">Cancel</a>
+</form>

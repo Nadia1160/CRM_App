@@ -1,0 +1,24 @@
+﻿@page
+@model CRM_APP.Pages.Leads.ImportModel
+@{
+    ViewData["Title"] = "Import Leads";
+}
+
+<h1>Import Leads from CSV</h1>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">CSV File</label>
+                        <input type="file" name="file" id="file" class="form-control" accept=".csv" required />
+                        <small class="text-muted">Format: Name,Email,Company,Status,Source (optional)</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload & Import</button>
+                    <a asp-page="./Index" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

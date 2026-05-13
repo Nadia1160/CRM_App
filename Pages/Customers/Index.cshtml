@@ -1,0 +1,40 @@
+﻿@page
+@model CRM_APP.Pages.Customers.IndexModel
+@{
+    ViewData["Title"] = "Customers";
+}
+
+<h1>Customers</h1>
+
+<!-- **** FIX #4: Filter to Razor Page List View **** -->
+<form method="get">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" asp-for="SearchTerm" placeholder="Search by name or city..." />
+        <button class="btn btn-primary" type="submit">Filter</button>
+        <a href="/Customers" class="btn btn-secondary">Reset</a>
+        <a href="/Customers/Index?handler=ExportPdf" class="btn btn-danger ms-2">Export to PDF</a>
+    </div>
+</form>
+<a asp-page="./Create" class="btn btn-success mb-3">+ Create New Customer</a>
+<table class="table table-bordered">
+    <thead>
+        <tr><th>Name</th><th>Email</th><th>City</th><th>Orders Count</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model.Customers)
+        {
+            <tr>
+                <td>@customer.Name</td>
+                <td>@customer.Email</td>
+                <td>@customer.City</td>
+                <td>@customer.Orders?.Count</td>
+                <td>
+                    <a asp-page="./Delete" asp-route-id="@customer.Id" class="btn btn-danger btn-sm">Delete (Cascade)</a>
+                    <a asp-page="./Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p><a href="/Orders/Create" class="btn btn-success">Create Order</a></p>

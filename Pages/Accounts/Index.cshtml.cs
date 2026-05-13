@@ -1,0 +1,27 @@
+using CRM_APP.Data;
+using CRM_APP.Models;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+
+namespace CRM_APP.Pages.Accounts
+{
+    public class IndexModel : PageModel
+    {
+        private readonly ApplicationDbContext _context;
+
+        public IndexModel(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public IList<Account> Account { get; set; } = default!;
+
+        public async Task OnGetAsync()
+        {
+            if (_context.Accounts != null)
+            {
+                Account = await _context.Accounts.ToListAsync();
+            }
+        }
+    }
+}
